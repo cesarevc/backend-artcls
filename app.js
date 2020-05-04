@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var app = express();
 
 //charge files routes 
+var article_routes = require('./routes/article');
 
 //middlewares
 app.use(bodyParser.urlencoded({extended:false}));
@@ -15,13 +16,8 @@ app.use(bodyParser.json());
 //cors activate 
 
 // routes prefix
-// app.get('/probando', (req, res) => {
-//     return res.status(200).send({
-//         curso: "backend",
-//         autor: "cesar enrique",
-//         web: "www.cesc.com"
-//     });
-// })
+app.use('/api', article_routes)
+
 
 
 //export modules (actual file)
