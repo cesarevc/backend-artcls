@@ -13,6 +13,8 @@ router.get('/test', ArticleController.test);
 
 //rutas utiles
 router.post('/save', ArticleController.save);
+router.get('/articles/:last?', ArticleController.getArticles);
+router.get('/article/:id', ArticleController.getArticle);
 
 
 
