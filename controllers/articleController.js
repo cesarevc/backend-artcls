@@ -1,8 +1,9 @@
 'use strict'
 
 var validator = require('validator');
-
 var Article = require('../models/article');
+var fs = require('fs');
+var path = require('path');
 
 var controller = {
     datos :  (req, res) => {
@@ -170,6 +171,99 @@ var controller = {
                 message: 'error al intentar la actualización'
             }); 
         }
+    },
+
+    delete: (req, res) => {
+        var idArticle = req.params.id;
+
+        Article.findOneAndDelete({_id: idArticle}, (err, articleRemoved) => {
+            if(err){
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'error al borrar'
+                }); 
+            }
+
+            if(!articleRemoved){
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'no existe el articulo'
+                }); 
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                article: articleRemoved
+            }); 
+        });
+    },
+
+    upload: (req, res) => {
+        //cconnect multiparty router/article.js
+        console.log(req.files);
+        //pick up the file to upload
+       
+        if(!req.files){
+            return res.status(404).send({
+                status: 'error',
+                message: 'imagen no subida'
+            })
+        }
+
+        //get file name and extension 
+        var filePath = req.files.file0.path;
+        var fileSplit = filePath.split('\\');
+
+        //CAUTION, if server runs on liinux or ios
+        //var fileSplit = filePath.split('/');
+
+        var fileName = fileSplit[2];
+
+        var extension_split = fileName.split('\.');
+        var file_ext = extension_split[1];
+        
+        //validate file extension
+        if(file_ext != 'png' && file_ext != 'jpg' && file_ext != 'gif' && file_ext != 'jpeg'){
+            fs.unlink(filePath, (err) => {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'la extension de la img no es valida' 
+                });
+            });
+        } else {
+            var article_id = req.params.id;
+
+            Article.findOneAndUpdate({_id: article_id}, {image: fileName}, {new:true}, (err, articleUpdated) => {
+                if (err || !articleUpdated){
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'error al actualizar articulo'
+                    });
+                }
+                return res.status(200).send({
+                    status: 'success',
+                    article: articleUpdated
+                });
+            });
+        }
+    },
+
+    getImage: (req, res) => {
+
+        var file = req.params.image;
+        var path_file = `./upload/articles/${file}`;
+
+        fs.exists(path_file, (exists) => {
+            if(exists) {
+                return res.sendFile(path.resolve(path_file));
+            } else {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'la imagen no existe'
+                });
+            }
+        })
+
     }
 
 };
