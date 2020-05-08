@@ -5,6 +5,8 @@ var ArticleController = require('../controllers/articleController');
 
 var router = express.Router();
 
+var multiparty = require('connect-multiparty');
+var md_upload = multiparty({ uploadDir: './upload/articles'});
 
 //rutas para articulos
 //de prueba
@@ -15,8 +17,9 @@ router.get('/test', ArticleController.test);
 router.post('/save', ArticleController.save);
 router.get('/articles/:last?', ArticleController.getArticles);
 router.get('/article/:id', ArticleController.getArticle);
-router.put('/article/:id', ArticleController.update);
-
-
+router.put('/articleUpdate/:id', ArticleController.update);
+router.delete('/articleDelete/:id', ArticleController.delete);
+router.post('/imageUpload/:id', md_upload,  ArticleController.upload);
+router.get('/getImage/:image', ArticleController.getImage);
 
 module.exports = router;
