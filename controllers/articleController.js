@@ -25,8 +25,8 @@ var controller = {
         //validate data
         try {
 
-            var validate_title = !validator.isEmpty(params.title);
-            var validate_content = !validator.isEmpty(params.content);
+            var validateTitle = !validator.isEmpty(params.title);
+            var validateContent = !validator.isEmpty(params.content);
 
         } catch (err) {
             return res.status(200).send({
@@ -34,7 +34,7 @@ var controller = {
             });
         }
 
-        if (validate_title && validate_content){
+        if (validateTitle && validateContent){
            
             //create object to save
             var article = new Article();
@@ -123,7 +123,53 @@ var controller = {
                 article
             }); 
         });
+    },
 
+    update: (req, res) => {
+        //pick up article id
+        var idArticle = req.params.id;
+
+        //recibe data
+        var params = req.body;
+
+        //validate data
+        try {
+            var validateTitle = !validator.isEmpty(params.title);
+            var validateContent = !validator.isEmpty(params.content);
+        } catch (error) {
+            return res.status(404).send({
+                status: 'error',
+                message: 'hubo un error'
+            });
+        }
+        if (validateTitle && validateContent){
+            //find and update
+            Article.findByIdAndUpdate({_id: idArticle}, params, {new: true}, (err, articleUpdated) => {
+                if(err){
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'error al actualizar'
+                    });     
+                }
+                if (!articleUpdated){
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'hubo un error'
+                    });
+                }
+                //response
+                return res.status(200).send({
+                    status: 'success',
+                    article: articleUpdated
+                }); 
+            })
+
+        } else {
+            return res.status(404).send({
+                status: 'error',
+                message: 'error al intentar la actualización'
+            }); 
+        }
     }
 
 };
