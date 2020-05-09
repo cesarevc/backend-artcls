@@ -263,6 +263,39 @@ var controller = {
                 });
             }
         })
+    },
+
+    search: (req, res) => {
+        //String a buscar
+        var searchString = req.params.search;
+        //find or
+        Article.find({ "$or":[
+            {"title": {"$regex" : searchString, "$options": "i" }},
+            {"content": {"$regex" : searchString, "$options": "i" }}
+        ]})
+        .sort([['date, descending']])
+        .exec((err, articles) => {
+
+            if(err){
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'error en la petición'
+                });
+            }
+
+            if(!articles){
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'No hay articulos que coincidan con la busqueda'
+                });
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                articles
+            });
+
+        });
 
     }
 
